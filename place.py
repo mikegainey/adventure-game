@@ -1,13 +1,19 @@
+from inventory import Inventory
+
 class Place:
     def __init__(self, name, description):
         self.name = name               # "a short description"
         self.description = description # "a sentence about the place"
         self.linked_places = list()    # [(Place, "how to get there")]
-        self.items = dict()            # {'cheese':{'food':'yes', 'weapon':'dave', 'visible':'no'}}
-        self.inhabitants = list()      # [Character]
+        self.items = Inventory()       # items are Items (includes Food, Container, ...)
+        self.inhabitants = set()       # {Character}
 
     def link_place(self, place, route): # (Place, "route to get there")
         self.linked_places.append((place, route))
+
+    def add_items(self, *items):
+        for item in items:
+            self.items.add_items(item)
 
     def describe(self):
         print("\n\nLocation: {}.  {}".format(self.name, self.description))
@@ -18,9 +24,7 @@ class Place:
         for inhabitant in inhabitants:
             print(" {}".format(inhabitant))
 
-        # for item, attr in self.items.items():
-        #     print(item, attr)
-        items = [item for item, attr in self.items.items() if attr.get('visible') != 'no']
+        items = self.items.list_visible_items()
         print("Items: {}".format(', '.join(items)))
 
         print("Places you can go from here:")
