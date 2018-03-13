@@ -60,7 +60,7 @@ while result != 'you lose':
     current_place.describe()
 
     # show contents of the backpack
-    backpack_items = backpack.list_visible_items()
+    backpack_items = backpack.list_items()
     print("Your backpack contains: {}\n".format(', '.join(backpack_items)))
 
     # get a command from the user; assumes first word is the verb and last word is the object
