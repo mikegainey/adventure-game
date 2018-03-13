@@ -1,7 +1,6 @@
 from place import Place
 from character import Character, Enemy
 from item import Item, Food, Container
-from inventory import Inventory
 
 # define places
 kitchen = Place("Kitchen", "A dank and dirty room buzzing with flies.")
@@ -51,8 +50,9 @@ ballroom.inhabitants.add(tabitha)
 
 current_place = kitchen
 
-backpack = Inventory() # this facilitates a backpack.list_items() method
-backpack.add_items(book, knife)
+backpack = set()
+backpack.add(book)
+backpack.add(knife)
 
 result = None # the result of fighting enemies; a value of 'you lose' ends the game
 
@@ -60,8 +60,8 @@ while result != 'you lose':
     current_place.describe()
 
     # show contents of the backpack
-    backpack_items = backpack.list_visible_items()
-    print("Your backpack contains: {}\n".format(', '.join(backpack_items)))
+    items = [item.name for item in backpack]
+    print("Your backpack contains: {}\n".format(', '.join(items)))
 
     # get a command from the user; assumes first word is the verb and last word is the object
     command = input("command: ").split()
