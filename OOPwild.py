@@ -42,6 +42,11 @@ dave.conversation = ["What's up, dude! I'm hungry.", "What do you call cheese th
 dave.weakness = cheese
 dining_hall.inhabitants.add(dave)
 
+eddie = Enemy("Eddie", "another smelly zombie")
+eddie.conversation = ["Don't look at me!  It was Dave's idea!", "I'm not really hungry.", "Ok, I'm a zombie.  I'm always hungry."]
+eddie.weakness = pizza
+dining_hall.inhabitants.add(eddie)
+
 tabitha = Enemy("Tabitha", "an enormous spider with countless eyes and furry legs.")
 tabitha.conversation = ["Sssss....I'm so bored...", "Read any good books lately?"]
 tabitha.weakness = book

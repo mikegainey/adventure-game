@@ -17,19 +17,18 @@ class Place:
         print("\n\nLocation: {}.  {}".format(self.name, self.description))
         print("-" * 40)
 
-        inhabitants = ["{}, {}".format(inhabitant.name, inhabitant.description) for inhabitant in self.inhabitants]
         print("Inhabitants:")
-        for inhabitant in inhabitants:
-            print(" {}".format(inhabitant))
+        for inhabitant in self.inhabitants:
+            print(" {}, {}".format(inhabitant.name, inhabitant.description))
 
         visible_items = list()
         for item in self.items:
             if 'invisible' in item.properties:
                 continue
             visible_items.append(item.name)
-        print("Items: {}".format(', '.join(visible_items)))
+        print("\nItems: {}".format(', '.join(visible_items)))
 
-        print("Places you can go from here:")
+        print("\nPlaces you can go from here:")
         for number, place in enumerate(self.linked_places, 1):
             place_name, place_description = place[0].name, place[1]
             print(" {}. {}: {}".format(number, place_name, place_description))
