@@ -20,6 +20,12 @@ class Place:
                 return character
         return "not here"
 
+    def find_item(self, cmd_object):
+        for item in self.items:
+            if item.name.lower() == cmd_object.lower():
+                return item
+        return "not here"
+
     def describe(self):
         print("\n\nLocation: {}.  {}".format(self.name, self.description))
         print("-" * 40)
@@ -39,5 +45,6 @@ class Place:
         for number, place in enumerate(self.linked_places, 1):
             place_name, place_description = place[0].name, place[1]
             print(" {}. {}: {}".format(number, place_name, place_description))
+        print("-" * 40)
         print("")
 

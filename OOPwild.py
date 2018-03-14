@@ -46,18 +46,18 @@ eddie = Enemy("Eddie", "another smelly zombie")
 eddie.conversation = ["I'm not really hungry.", "Ok, I'm a zombie.  I'm always hungry.", "But for what?!"]
 eddie.weakness = pizza
 dining_hall.inhabitants.add(eddie)
+dining_hall.items.add(book)
 
 tabitha = Enemy("Tabitha", "an enormous spider with countless eyes and furry legs.")
 tabitha.conversation = ["Sssss....I'm so bored...", "Read any good books lately?"]
 tabitha.weakness = book
 ballroom.inhabitants.add(tabitha)
+ballroom.items.add(knife)
 
 
 current_place = kitchen
 
 backpack = set()
-backpack.add(book)
-backpack.add(knife)
 
 result = None # the result of fighting enemies; a value of 'you lose' ends the game
 
@@ -100,16 +100,14 @@ while result != 'you lose':
             print("What will you take?")
         else:
             item = current_place.find_item(cmd_object)
-    #         items = [item for item, attr in current_place.items.items() if attr.get('visible') != 'no']
-    #         if cmd_object not in items:
-    #             print("I don't see a {}.".format(cmd_object))
-    #         else:
-    #             if current_place.items[cmd_object].get('too heavy') == 'yes':
-    #                 print("You can't take the {}.  It's too heavy.".format(cmd_object))
-    #             else:
-    #                 print("You take the {}.".format(cmd_object))
-    #                 backpack[cmd_object] = current_place.items[cmd_object]
-    #                 del current_place.items[cmd_object]
+            if item == 'not here':
+                print("I don't see a {}.".format(cmd_object))
+            elif 'too heavy' in item.properties:
+                print("You can't take the {}.  It's too heavy.".format(cmd_object))
+            else:
+                print("You take the {}.".format(cmd_object))
+                backpack.add(item)
+                current_place.items.remove(item)
 
     # # handle eating food (in your backpack)
     # elif cmd_verb == 'eat':
