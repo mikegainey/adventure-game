@@ -43,7 +43,7 @@ dave.weakness = cheese
 dining_hall.inhabitants.add(dave)
 
 eddie = Enemy("Eddie", "another smelly zombie")
-eddie.conversation = ["Don't look at me!  It was Dave's idea!", "I'm not really hungry.", "Ok, I'm a zombie.  I'm always hungry."]
+eddie.conversation = ["I'm not really hungry.", "Ok, I'm a zombie.  I'm always hungry.", "But for what?!"]
 eddie.weakness = pizza
 dining_hall.inhabitants.add(eddie)
 
@@ -83,23 +83,23 @@ while result != 'you lose':
         place_index = int(command[0]) - 1
         current_place = current_place.linked_places[place_index][0]
 
-    # # handle talking to characters
-    # elif cmd_verb == "talk":
-    #     if len(command) == 1:
-    #         print("Specify who you want to talk to.")
-    #     else:
-    #         character = [char for char in current_place.inhabitants if char.name.lower() == cmd_object.lower()]
-    #         if len(character) == 0:
-    #             print("{} is not here or is not a character.".format(cmd_object.capitalize()))
-    #         else:
-    #             character = character[0]
-    #             character.talk()
+    # handle talking to characters
+    elif cmd_verb == "talk":
+        if len(command) == 1:
+            print("Specify who you want to talk to.")
+        else:
+            character = current_place.find_character(cmd_object)
+            if character == 'not here':
+                print("{} is not here.".format(cmd_object))
+            else:
+                character.talk()
 
-    # # handle taking items (putting them in the backpack)
-    # elif cmd_verb == 'take':
-    #     if len(command) == 1:
-    #         print("What will you take?")
-    #     else:
+    # handle taking items (putting them in the backpack)
+    elif cmd_verb == 'take':
+        if len(command) == 1:
+            print("What will you take?")
+        else:
+            item = current_place.find_item(cmd_object)
     #         items = [item for item, attr in current_place.items.items() if attr.get('visible') != 'no']
     #         if cmd_object not in items:
     #             print("I don't see a {}.".format(cmd_object))

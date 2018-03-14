@@ -13,6 +13,13 @@ class Place:
         for item in items:
             self.items.add(item)
 
+    # find a character in the Place
+    def find_character(self, cmd_object):
+        for character in self.inhabitants:
+            if character.name.lower() == cmd_object.lower():
+                return character
+        return "not here"
+
     def describe(self):
         print("\n\nLocation: {}.  {}".format(self.name, self.description))
         print("-" * 40)
