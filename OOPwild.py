@@ -27,11 +27,11 @@ refrigerator = Container('refrigerator')
 refrigerator.add_contents(cheese, pizza)
 refrigerator.add_property("too heavy")
 
-kitchen.add_items(refrigerator, cheese, pizza)
+kitchen.items.add_items(refrigerator, cheese, pizza)
 
 apple = Food("apple")
 spoon = Item("spoon")
-kitchen.add_items(apple, spoon)
+kitchen.items.add_items(apple, spoon)
 
 book = Item("book")
 knife = Item("knife")
@@ -50,13 +50,13 @@ eddie = Enemy("Eddie", "another smelly zombie")
 eddie.conversation = ["I'm not really hungry.", "Ok, I'm a zombie.  I'm always hungry.", "But for what?!"]
 eddie.weakness = pizza
 dining_hall.inhabitants.add(eddie)
-dining_hall.items.add(book)
+dining_hall.items.add_items(book)
 
 tabitha = Enemy("Tabitha", "an enormous spider with countless eyes and furry legs.")
 tabitha.conversation = ["Sssss....I'm so bored...", "Read any good books lately?"]
 tabitha.weakness = book
 ballroom.inhabitants.add(tabitha)
-ballroom.items.add(knife)
+ballroom.items.add_items(knife)
 
 
 current_place = kitchen
@@ -103,7 +103,7 @@ while result != 'you lose':
         if len(command) == 1:
             print("What will you take?")
         else:
-            item = current_place.find_item(cmd_object)
+            item = current_place.items.find_item(cmd_object)
             if item == 'not here':
                 print("I don't see a {}.".format(cmd_object))
             elif 'too heavy' in item.properties:
@@ -111,7 +111,7 @@ while result != 'you lose':
             else:
                 print("You take the {}.".format(cmd_object))
                 backpack.add(item)
-                current_place.items.remove(item)
+                current_place.items.remove_item(item)
 
     # # handle eating food (in your backpack)
     elif cmd_verb == 'eat':
