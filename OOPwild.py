@@ -29,6 +29,10 @@ refrigerator.add_property("too heavy")
 
 kitchen.add_items(refrigerator, cheese, pizza)
 
+apple = Food("apple")
+spoon = Item("spoon")
+kitchen.add_items(apple, spoon)
+
 book = Item("book")
 knife = Item("knife")
 
@@ -110,15 +114,14 @@ while result != 'you lose':
                 current_place.items.remove(item)
 
     # # handle eating food (in your backpack)
-    # elif cmd_verb == 'eat':
-    #     fooditems = [item for item, attr in backpack.items() if attr.get('food') == 'yes']
-    #     # is the item in your backpack?
-    #     if cmd_object not in backpack:
-    #         print("You don't have a {}.".format(cmd_object))
-    #     else:
-    #         # is the item food?
-    #         if cmd_object not in fooditems:
-    #             print("The {} is not food.".format(cmd_object))
+    elif cmd_verb == 'eat':
+        # is the item in your backpack?
+        if cmd_object not in [item.name for item in backpack]:
+            print("You don't have a {}.".format(cmd_object))
+        # else:
+        #     # is the item food?
+        #     if cmd_object not in fooditems:
+        #         print("The {} is not food.".format(cmd_object))
     #         else:
     #             print("You eat the {}.".format(cmd_object))
     #             # remove the food from your backpack
