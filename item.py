@@ -7,7 +7,8 @@ class Item:
         self.properties.add(property)
 
 class Food(Item):
-    pass
+    def eat(self):
+        print("nom nom nom ...")
 
 class Container(Item):
     def __init__(self, name):

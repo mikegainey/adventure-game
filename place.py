@@ -19,6 +19,7 @@ class Place:
         return "not here"
 
     def describe(self):
+        input("\nPress <Enter> to continue ")
         print("\n\nLocation: {}.  {}".format(self.name, self.description))
         print("-" * 40)
 

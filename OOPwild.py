@@ -1,6 +1,7 @@
 from place import Place
 from character import Character, Enemy
 from item import Item, Food, Container
+from backpack import Backpack
 
 # define places
 kitchen = Place("Kitchen", "A dank and dirty room buzzing with flies.")
@@ -61,7 +62,7 @@ ballroom.items.add_items(knife)
 
 current_place = kitchen
 
-backpack = set()
+backpack = Backpack()
 
 result = None # the result of fighting enemies; a value of 'you lose' ends the game
 
@@ -69,7 +70,7 @@ while result != 'you lose':
     current_place.describe()
 
     # show contents of the backpack
-    items = [item.name for item in backpack]
+    items = backpack.list_items()
     print("Your backpack contains: {}\n".format(', '.join(items)))
 
     # get a command from the user; assumes first word is the verb and last word is the object
@@ -110,22 +111,23 @@ while result != 'you lose':
                 print("You can't take the {}.  It's too heavy.".format(cmd_object))
             else:
                 print("You take the {}.".format(cmd_object))
-                backpack.add(item)
+                backpack.add_items(item)
                 current_place.items.remove_item(item)
 
     # # handle eating food (in your backpack)
     elif cmd_verb == 'eat':
         # is the item in your backpack?
-        if cmd_object not in [item.name for item in backpack]:
+        if cmd_object not in backpack.list_items():
             print("You don't have a {}.".format(cmd_object))
-        # else:
-        #     # is the item food?
-        #     if cmd_object not in fooditems:
-        #         print("The {} is not food.".format(cmd_object))
-    #         else:
-    #             print("You eat the {}.".format(cmd_object))
-    #             # remove the food from your backpack
-    #             del backpack[cmd_object]
+        # is the item food?
+        elif cmd_object not in backpack.list_food():
+            print("The {} is not food.".format(cmd_object))
+        else:
+            food = backpack.find_item(cmd_object)
+            print("You eat the {}.".format(food.name))
+            food.eat()
+            # remove the food from your backpack
+            backpack.remove_item(food)
 
     # # handle opening items that are containers
     # elif cmd_verb == 'open':
