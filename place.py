@@ -1,4 +1,5 @@
 from backpack import Backpack
+import time
 
 class Place:
     def __init__(self, name, description):
@@ -18,8 +19,11 @@ class Place:
                 return character
         return "not here"
 
+    def remove_character(self, character):
+        self.inhabitants.remove(character)
+
     def describe(self):
-        input("\nPress <Enter> to continue ")
+        # time.sleep(1)
         print("\n\nLocation: {}.  {}".format(self.name, self.description))
         print("-" * 40)
 

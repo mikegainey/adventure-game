@@ -13,7 +13,6 @@ class Character:
             print("{} doesn't want to talk with you.".format(self.name))
 
     def fight(self, weapon):
-        print("\n{} doesn't want to fight with you.".format(self.name))
         return "not an enemy"
 
 
