@@ -25,13 +25,16 @@ pizza = Food("pizza")
 pizza.add_property("invisible")  # because it's in the refrigerator
 
 refrigerator = Container('refrigerator')
-refrigerator.add_contents(cheese, pizza)
 refrigerator.add_property("too heavy")
+refrigerator.add_contents(cheese, pizza)
 
 kitchen.items.add_items(refrigerator, cheese, pizza)
 
 book = Item("book")
+dining_hall.items.add_items(book)
+
 knife = Item("knife")
+ballroom.items.add_items(knife)
 
 # define characters and enemies
 mike = Character("Mike", "a computer programmer")
@@ -47,13 +50,11 @@ eddie = Enemy("Eddie", "another smelly zombie")
 eddie.conversation = ["I'm not really hungry.", "Ok, I'm a zombie.  I'm always hungry.", "But for what?!"]
 eddie.weakness = pizza
 dining_hall.inhabitants.add(eddie)
-dining_hall.items.add_items(book)
 
 tabitha = Enemy("Tabitha", "an enormous spider with countless eyes and furry legs.")
 tabitha.conversation = ["Sssss....I'm so bored...", "Read any good books lately?"]
 tabitha.weakness = book
 ballroom.inhabitants.add(tabitha)
-ballroom.items.add_items(knife)
 
 
 current_place = kitchen
@@ -62,7 +63,7 @@ backpack = Backpack()
 
 result = None # the result of fighting enemies; a value of 'you lose' ends the game
 
-while result != 'you lose':
+while result is not 'you lose':
     current_place.describe()
 
     # show contents of the backpack
@@ -144,7 +145,6 @@ while result != 'you lose':
                 for item in container.contents:
                     if 'invisible' in item.properties:
                         item.properties.remove('invisible')
-
 
     # handle fighting Enemies
     elif cmd_verb == 'fight':
