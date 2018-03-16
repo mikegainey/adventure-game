@@ -62,7 +62,7 @@ backpack = Backpack()
 
 result = None # the result of fighting enemies; a value of 'you lose' ends the game
 
-while result is not 'you lose':
+while result != 'you lose':
     current_place.describe()
 
     # show contents of the backpack
@@ -74,7 +74,7 @@ while result is not 'you lose':
     if len(command) == 0: # if the user just presses <Enter>
         continue
     cmd_verb, cmd_object = command[0], command[-1]
-    print() # Trinket will print the () unless the quotes are present
+    print()
 
     # handle moving from place to place
     # If there are 3 linked places, choices will be ['1', '2', '3']
@@ -110,22 +110,23 @@ while result is not 'you lose':
                 backpack.add_items(item)
                 current_place.remove_item(item)
 
-    # # handle eating food (in your backpack)
+    # handle eating food (in your backpack)
     elif cmd_verb == 'eat':
         if len(command) == 1:
             print("Specify what you want to eat.")
-        # is the item in your backpack?
-        elif cmd_object not in backpack.list_items():
-            print("You don't have a {}.".format(cmd_object))
-        # is the item food?
-        elif cmd_object not in backpack.list_food():
-            print("The {} is not food.".format(cmd_object))
         else:
+            # is the item in your backpack?
             food = backpack.find_item(cmd_object)
-            print("You eat the {}.".format(food.name))
-            food.eat()
-            # remove the food from your backpack
-            backpack.remove_item(food)
+            if food == 'not here':
+                print("You don't have a {}.".format(cmd_object))
+            # is the item food?
+            elif not isinstance(food, Food):
+                print("The {} is not food.".format(cmd_object))
+            else:
+                print("You eat the {}.".format(food.name))
+                food.eat()
+                # remove the food from your backpack
+                backpack.remove_item(food)
 
     # handle opening items that are containers
     elif cmd_verb == 'open':
@@ -154,20 +155,20 @@ while result is not 'you lose':
             character = current_place.find_character(cmd_object)
             if character == 'not here':
                 print("{} is not here.".format(cmd_object))
+            elif not isinstance(character, Enemy):
+                print("{} is not an enemy.".format(character.name))
             else:
-                weapon = input("What will you fight with? ")
-                if weapon not in backpack.list_items():
-                    print("\nYou don't have a {}.".format(weapon))
+                weapon_str = input("What will you fight with? ")
+                weapon = backpack.find_item(weapon_str)
+                if weapon == 'not here':
+                    print("\nYou don't have a {}.".format(weapon_str))
                 else:
-                    weapon = backpack.find_item(weapon)
                     result = character.fight(weapon)
                     if result == 'you win':
                         print("\nYou win the fight!")
                         current_place.remove_character(character)
                         backpack.remove_item(weapon)
                         # backpack.items.remove(weapon)
-                    elif result == 'not an enemy':
-                        print("{} doesn't want to fight you.".format(character.name))
                     else:
                         print("\nYou lost the fight!")
                         # the while loop will end because result == 'you loose'
@@ -181,3 +182,4 @@ print("""\n{} says, "Game Over!".\n\n""".format(character.name))
 # TODO:
 # item properties to demonstrate: weapon, tool
 # why isn't a container a Backpack?
+# generate class docs with: python3 -m pydoc -w ./

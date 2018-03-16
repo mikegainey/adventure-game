@@ -12,9 +12,6 @@ class Character:
             print("[{} says]: {}".format(self.name, self.conversation[self.conversation_x]))
             self.conversation_x = (self.conversation_x + 1) % len(self.conversation)
 
-    def fight(self, weapon):
-        return "not an enemy"
-
 
 class Enemy(Character):
     def fight(self, weapon):

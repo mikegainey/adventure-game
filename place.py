@@ -56,8 +56,10 @@ class Place(Backpack):
     def describe(self):
         tw = textwrap.TextWrapper(width=70, replace_whitespace=False, subsequent_indent='          ')
         # time.sleep(1)
-        print(tw.fill("\n\nLocation: {}.  {}".format(self.name, self.description)))
-        print("-" * 40)
+        print("\n\n")
+        print("-" * 70)
+        print(tw.fill("Location: {}.  {}".format(self.name, self.description)))
+        print("-" * 70)
 
         print("Inhabitants:")
         for inhabitant in self.inhabitants:
@@ -70,5 +72,5 @@ class Place(Backpack):
         for number, place in enumerate(self.linked_places, 1):
             place_name, place_description = place[0].name, place[1]
             print(" {}. {}: {}".format(number, place_name, place_description))
-        print("-" * 40)
+        print("-" * 70)
         print("")
