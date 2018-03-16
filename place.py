@@ -20,7 +20,7 @@ class Backpack:
         return [item.name for item in self.items if property in item.properties]
 
     def list_visible_items(self):
-        return [item.name for item in self.items if 'invisible' not in item.properties]
+        return [item.name for item in self.items if "invisible" not in item.properties]
 
     def list_food(self):
         return [item.name for item in self.items if isinstance(item, Food)]
@@ -54,7 +54,7 @@ class Place(Backpack):
         self.inhabitants.remove(character)
 
     def describe(self):
-        tw = textwrap.TextWrapper(width=70, replace_whitespace=False, subsequent_indent='          ')
+        tw = textwrap.TextWrapper(width=70, replace_whitespace=False, subsequent_indent="          ")
         # time.sleep(1)
         print("\n\n")
         print("-" * 70)
@@ -66,7 +66,7 @@ class Place(Backpack):
             print(" {}, {}".format(inhabitant.name, inhabitant.description))
 
         visible_items = self.list_visible_items()
-        print("\nItems: {}".format(', '.join(visible_items)))
+        print("\nItems: {}".format(", ".join(visible_items)))
 
         print("\nPlaces you can go from here:")
         for number, place in enumerate(self.linked_places, 1):
