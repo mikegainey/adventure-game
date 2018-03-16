@@ -66,15 +66,15 @@ while result != "you lose":
     current_place.describe()
 
     # show contents of the backpack
-    items = backpack.list_items()
-    print("Your backpack contains: {}\n".format(", ".join(items)))
+    backpack_list = ", ".join(backpack.list_items())
+    print("Your backpack contains: {}\n".format(backpack_list))
 
     # get a command from the user; assumes first word is the verb and last word is the object
     command = input("command: ").split()
+    print()
+
     if len(command) == 0: # if the user just presses <Enter>
         continue
-    cmd_verb, cmd_object = command[0], command[-1]
-    print()
 
     # handle moving from place to place
     # If there are 3 linked places, choices will be ["1", "2", "3"]
@@ -83,95 +83,87 @@ while result != "you lose":
     if command[0] in choices:
         place_index = int(command[0]) - 1
         current_place = current_place.linked_places[place_index][0]
+        continue
+
+    if len(command) == 1:
+        print("Enter two-part commands in the form: verb object.")
+        continue
+
+    cmd_verb, cmd_object = command[0], command[-1]
 
     # handle talking to characters
-    elif cmd_verb == "talk":
-        if len(command) == 1:
-            print("Specify who you want to talk to.")
+    if cmd_verb == "talk":
+        character = current_place.find_character(cmd_object)
+        if character == "not here":
+            print("{} is not here.".format(cmd_object))
         else:
-            character = current_place.find_character(cmd_object)
-            if character == "not here":
-                print("{} is not here.".format(cmd_object))
-            else:
-                character.talk()
+            character.talk()
 
     # handle taking items (putting them in the backpack)
     elif cmd_verb == "take":
-        if len(command) == 1:
-            print("Specify what you want to take.")
+        item = current_place.find_item(cmd_object)
+        if item == "not here":
+            print("I don't see a {}.".format(cmd_object))
+        elif "too heavy" in item.properties:
+            print("You can't take the {}.  It's too heavy.".format(cmd_object))
         else:
-            item = current_place.find_item(cmd_object)
-            if item == "not here":
-                print("I don't see a {}.".format(cmd_object))
-            elif "too heavy" in item.properties:
-                print("You can't take the {}.  It's too heavy.".format(cmd_object))
-            else:
-                print("You take the {}.".format(cmd_object))
-                backpack.add_items(item)
-                current_place.remove_item(item)
+            print("You take the {}.".format(cmd_object))
+            backpack.add_items(item)
+            current_place.remove_item(item)
 
     # handle eating food (in your backpack)
     elif cmd_verb == "eat":
-        if len(command) == 1:
-            print("Specify what you want to eat.")
+        # is the item in your backpack?
+        food = backpack.find_item(cmd_object)
+        if food == "not here":
+            print("You don't have a {}.".format(cmd_object))
+        # is the item food?
+        elif not isinstance(food, Food):
+            print("The {} is not food.".format(cmd_object))
         else:
-            # is the item in your backpack?
-            food = backpack.find_item(cmd_object)
-            if food == "not here":
-                print("You don't have a {}.".format(cmd_object))
-            # is the item food?
-            elif not isinstance(food, Food):
-                print("The {} is not food.".format(cmd_object))
-            else:
-                print("You eat the {}.".format(food.name))
-                food.eat()
-                # remove the food from your backpack
-                backpack.remove_item(food)
+            print("You eat the {}.".format(food.name))
+            food.eat()
+            # remove the food from your backpack
+            backpack.remove_item(food)
 
     # handle opening items that are containers
     elif cmd_verb == "open":
-        if len(command) == 1:
-            print("Specify what you want to open.")
+        # is the item in the current_place?
+        container = current_place.find_item(cmd_object)
+        if container == "not here":
+            print("I don't see a {}.".format(cmd_object))
+            # is the item a container?
+        elif not isinstance(container, Container):
+            print("The {} is not a container.".format(cmd_object))
         else:
-            # is the item in the current_place?
-            container = current_place.find_item(cmd_object)
-            if container == "not here":
-                print("I don't see a {}.".format(cmd_object))
-                # is the item a container?
-            elif not isinstance(container, Container):
-                print("The {} is not a container.".format(cmd_object))
-            else:
-                print("You open the {}.".format(container.name))
-                for item in container.contents:
-                    if "invisible" in item.properties:
-                        item.properties.remove("invisible")
+            print("You open the {}.".format(container.name))
+            for item in container.contents:
+                if "invisible" in item.properties:
+                    item.properties.remove("invisible")
 
     # handle fighting Enemies
     elif cmd_verb == "fight":
-        if len(command) == 1:
-            print("Specify who you want to fight with.")
+        # is the character present?
+        character = current_place.find_character(cmd_object)
+        if character == "not here":
+            print("{} is not here.".format(cmd_object))
+        elif not isinstance(character, Enemy):
+            print("{} is not an enemy.".format(character.name))
         else:
-            # is the character present?
-            character = current_place.find_character(cmd_object)
-            if character == "not here":
-                print("{} is not here.".format(cmd_object))
-            elif not isinstance(character, Enemy):
-                print("{} is not an enemy.".format(character.name))
+            weapon_str = input("What will you fight with? ")
+            weapon = backpack.find_item(weapon_str)
+            if weapon == "not here":
+                print("\nYou don't have a {}.".format(weapon_str))
             else:
-                weapon_str = input("What will you fight with? ")
-                weapon = backpack.find_item(weapon_str)
-                if weapon == "not here":
-                    print("\nYou don't have a {}.".format(weapon_str))
+                result = character.fight(weapon)
+                if result == "you win":
+                    print("\nYou win the fight!")
+                    current_place.remove_character(character)
+                    backpack.remove_item(weapon)
+                    # backpack.items.remove(weapon)
                 else:
-                    result = character.fight(weapon)
-                    if result == "you win":
-                        print("\nYou win the fight!")
-                        current_place.remove_character(character)
-                        backpack.remove_item(weapon)
-                        # backpack.items.remove(weapon)
-                    else:
-                        print("\nYou lost the fight!")
-                        # the while loop will end because result == "you loose"
+                    print("\nYou lost the fight!")
+                    # the while loop will end because result == "you loose"
 
     else:
         print("I don't understand.")
