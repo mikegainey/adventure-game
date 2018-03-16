@@ -3,8 +3,9 @@ class Item:
         self.name = name
         self.properties = set()
 
-    def add_property(self, property):
-        self.properties.add(property)
+    def add_properties(self, *properties):
+        for property in properties:
+            self.properties.add(property)
 
 class Food(Item):
     def eat(self):

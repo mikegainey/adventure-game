@@ -6,11 +6,11 @@ class Character:
         self.conversation_x = 0
 
     def talk(self):
-        if self.conversation is not None:
+        if self.conversation is None:
+            print("{} doesn't want to talk with you.".format(self.name))
+        else:
             print("[{} says]: {}".format(self.name, self.conversation[self.conversation_x]))
             self.conversation_x = (self.conversation_x + 1) % len(self.conversation)
-        else:
-            print("{} doesn't want to talk with you.".format(self.name))
 
     def fight(self, weapon):
         return "not an enemy"

@@ -1,4 +1,6 @@
+import textwrap
 import time
+from item import Food
 
 class Backpack:
     def __init__(self):
@@ -18,12 +20,7 @@ class Backpack:
         return [item.name for item in self.items if property in item.properties]
 
     def list_visible_items(self):
-        visible_items = list()
-        for item in self.items:
-            if 'invisible' in item.properties:
-                continue
-            visible_items.append(item.name)
-        return visible_items
+        return [item.name for item in self.items if 'invisible' not in item.properties]
 
     def list_food(self):
         return [item.name for item in self.items if isinstance(item, Food)]
@@ -33,6 +30,7 @@ class Backpack:
             if item.name.lower() == cmd_object.lower():
                 return item
         return "not here"
+
 
 class Place(Backpack):
     def __init__(self, name, description):
@@ -56,8 +54,9 @@ class Place(Backpack):
         self.inhabitants.remove(character)
 
     def describe(self):
+        tw = textwrap.TextWrapper(width=70, replace_whitespace=False, subsequent_indent='          ')
         # time.sleep(1)
-        print("\n\nLocation: {}.  {}".format(self.name, self.description))
+        print(tw.fill("\n\nLocation: {}.  {}".format(self.name, self.description)))
         print("-" * 40)
 
         print("Inhabitants:")

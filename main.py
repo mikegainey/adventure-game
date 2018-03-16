@@ -1,7 +1,6 @@
-from place import Place
+from place import Place, Backpack
 from character import Character, Enemy
 from item import Item, Food, Container
-from backpack import Backpack
 
 # define places
 kitchen = Place("Kitchen", "A dank and dirty room buzzing with flies.")
@@ -19,13 +18,13 @@ balcony.link_place(ballroom, "down the stairs")
 
 # define items and their properties
 cheese = Food("cheese")
-cheese.add_property("invisible") # because it's in the refrigerator
+cheese.add_properties("invisible") # because it's in the refrigerator
 
 pizza = Food("pizza")
-pizza.add_property("invisible")  # because it's in the refrigerator
+pizza.add_properties("invisible")  # because it's in the refrigerator
 
 refrigerator = Container('refrigerator')
-refrigerator.add_property("too heavy")
+refrigerator.add_properties("too heavy")
 refrigerator.add_contents(cheese, pizza)
 
 kitchen.add_items(refrigerator, cheese, pizza)
@@ -72,10 +71,10 @@ while result is not 'you lose':
 
     # get a command from the user; assumes first word is the verb and last word is the object
     command = input("command: ").split()
-    if len(command) == 0:
+    if len(command) == 0: # if the user just presses <Enter>
         continue
     cmd_verb, cmd_object = command[0], command[-1]
-    print("") # Trinket will print the () unless the quotes are present
+    print() # Trinket will print the () unless the quotes are present
 
     # handle moving from place to place
     # If there are 3 linked places, choices will be ['1', '2', '3']
@@ -181,3 +180,4 @@ print("""\n{} says, "Game Over!".\n\n""".format(character.name))
 
 # TODO:
 # item properties to demonstrate: weapon, tool
+# why isn't a container a Backpack?
