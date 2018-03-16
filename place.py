@@ -1,12 +1,45 @@
-from backpack import Backpack
 import time
 
-class Place:
+class Backpack:
+    def __init__(self):
+        self.items = set()
+
+    def add_items(self, *items):
+        for item in items:
+            self.items.add(item)
+
+    def remove_item(self, item):
+        self.items.remove(item)
+
+    def list_items(self):
+        return [item.name for item in self.items]
+
+    def list_byproperty(self, property):
+        return [item.name for item in self.items if property in item.properties]
+
+    def list_visible_items(self):
+        visible_items = list()
+        for item in self.items:
+            if 'invisible' in item.properties:
+                continue
+            visible_items.append(item.name)
+        return visible_items
+
+    def list_food(self):
+        return [item.name for item in self.items if isinstance(item, Food)]
+
+    def find_item(self, cmd_object):
+        for item in self.items:
+            if item.name.lower() == cmd_object.lower():
+                return item
+        return "not here"
+
+class Place(Backpack):
     def __init__(self, name, description):
         self.name = name               # "a short description"
         self.description = description # "a sentence about the place"
         self.linked_places = list()    # [(Place, "how to get there")]
-        self.items = Backpack()
+        self.items = set()             # {Item}
         self.inhabitants = set()       # {Character}
 
     def link_place(self, place, route): # (Place, "route to get there")
@@ -31,7 +64,7 @@ class Place:
         for inhabitant in self.inhabitants:
             print(" {}, {}".format(inhabitant.name, inhabitant.description))
 
-        visible_items = self.items.list_visible_items()
+        visible_items = self.list_visible_items()
         print("\nItems: {}".format(', '.join(visible_items)))
 
         print("\nPlaces you can go from here:")

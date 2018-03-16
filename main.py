@@ -28,13 +28,13 @@ refrigerator = Container('refrigerator')
 refrigerator.add_property("too heavy")
 refrigerator.add_contents(cheese, pizza)
 
-kitchen.items.add_items(refrigerator, cheese, pizza)
+kitchen.add_items(refrigerator, cheese, pizza)
 
 book = Item("book")
-dining_hall.items.add_items(book)
+dining_hall.add_items(book)
 
 knife = Item("knife")
-ballroom.items.add_items(knife)
+ballroom.add_items(knife)
 
 # define characters and enemies
 mike = Character("Mike", "a computer programmer")
@@ -101,7 +101,7 @@ while result is not 'you lose':
         if len(command) == 1:
             print("Specify what you want to take.")
         else:
-            item = current_place.items.find_item(cmd_object)
+            item = current_place.find_item(cmd_object)
             if item == 'not here':
                 print("I don't see a {}.".format(cmd_object))
             elif 'too heavy' in item.properties:
@@ -109,7 +109,7 @@ while result is not 'you lose':
             else:
                 print("You take the {}.".format(cmd_object))
                 backpack.add_items(item)
-                current_place.items.remove_item(item)
+                current_place.remove_item(item)
 
     # # handle eating food (in your backpack)
     elif cmd_verb == 'eat':
@@ -134,7 +134,7 @@ while result is not 'you lose':
             print("Specify what you want to open.")
         else:
             # is the item in the current_place?
-            container = current_place.items.find_item(cmd_object)
+            container = current_place.find_item(cmd_object)
             if container == 'not here':
                 print("I don't see a {}.".format(cmd_object))
                 # is the item a container?
