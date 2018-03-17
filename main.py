@@ -1,4 +1,4 @@
-from place import Place, Backpack
+from place import Backpack, Place
 from character import Character, Enemy
 from item import Item, Food, Container
 
@@ -23,21 +23,24 @@ cheese.add_properties("invisible") # because it's in the refrigerator
 pizza = Food("pizza")
 pizza.add_properties("invisible")  # because it's in the refrigerator
 
+knife = Item("knife")
+ballroom.add_items(knife)
+
 refrigerator = Container("refrigerator")
 refrigerator.add_properties("too heavy")
 refrigerator.add_contents(cheese, pizza)
+refrigerator.key = knife
 
 kitchen.add_items(refrigerator, cheese, pizza)
 
 book = Item("book")
 dining_hall.add_items(book)
 
-knife = Item("knife")
-ballroom.add_items(knife)
 
 # define characters and enemies
 mike = Character("Mike", "a computer programmer")
 mike.conversation = ["You never know when you could use some cheese.", "And you can't use cheese after you've eaten it."]
+mike.QA = ({"what", "favorite", "language"}, "Python, of course!")
 kitchen.inhabitants.add(mike)
 
 dave = Enemy("Dave", "a smelly zombie")
@@ -99,6 +102,13 @@ while result != "you lose":
         else:
             character.talk()
 
+    elif cmd_verb == "ask":
+        character = current_place.find_character(cmd_object)
+        if character == "not here":
+            print("{} is not here.".format(cmd_object))
+        else:
+            character.ask()
+
     # handle taking items (putting them in the backpack)
     elif cmd_verb == "take":
         item = current_place.find_item(cmd_object)
@@ -135,11 +145,15 @@ while result != "you lose":
             # is the item a container?
         elif not isinstance(container, Container):
             print("The {} is not a container.".format(cmd_object))
+        elif container.key is not None and container.key not in backpack.items:
+            print("You need a key (or another special object) to open the {}.".format(container.name))
         else:
             print("You open the {}.".format(container.name))
             for item in container.contents:
                 if "invisible" in item.properties:
                     item.properties.remove("invisible")
+            if container.key is not None:
+                backpack.remove_item(container.key)
 
     # handle fighting Enemies
     elif cmd_verb == "fight":
@@ -173,5 +187,5 @@ print("""\n{} says, "Game Over!".\n\n""".format(character.name))
 
 # TODO:
 # item properties to demonstrate: weapon, tool
-# why isn't a container a Backpack?
 # generate class docs with: python3 -m pydoc -w ./
+# ask a character a question, get a hint

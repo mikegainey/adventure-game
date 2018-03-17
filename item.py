@@ -15,6 +15,7 @@ class Container(Item):
     def __init__(self, name):
         super().__init__(name)
         self.contents = set()
+        self.key = None
 
     def add_contents(self, *items):
         for item in items:
