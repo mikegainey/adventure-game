@@ -1,5 +1,6 @@
 # adventure-game
 From the Raspberry PI online course: Object-oriented Programming in Python: Create Your Own Adventure Game
+This was written using Python 3.6.3.  Python 3.6 or better is required because f-strings are used.
 
 So far, this is just my exploration of how to write an adventure game.  There is no objective or way to win.  More than trying to make a fun game, I'm exploring how to organize my code in a nice way.  So far, the code is way too messy for me to feel good about it
 
