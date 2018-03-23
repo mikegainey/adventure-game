@@ -63,10 +63,10 @@ current_place = kitchen
 
 backpack = Backpack()
 
-result = None # the result of fighting enemies; a value of "you lose" ends the game
+keep_playing = True
 
-while result != "you lose":
-    current_place.describe()
+while keep_playing:
+    current_place.describe2()
 
     # show contents of the backpack
     backpack_list = ", ".join(backpack.list_items())
@@ -177,7 +177,7 @@ while result != "you lose":
                     # backpack.items.remove(weapon)
                 else:
                     print("\nYou lost the fight!")
-                    # the while loop will end because result == "you loose"
+                    keep_playing = False
 
     else:
         print("I don't understand.")
