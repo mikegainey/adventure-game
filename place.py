@@ -2,6 +2,9 @@ import textwrap
 import time
 from item import Food
 
+tw = textwrap.TextWrapper(width=70, replace_whitespace=False, subsequent_indent="          ")
+tw2 = textwrap.TextWrapper(width=70, replace_whitespace=False, subsequent_indent="")
+
 class Backpack:
     def __init__(self):
         self.items = set()
@@ -54,7 +57,6 @@ class Place(Backpack):
         self.inhabitants.remove(character)
 
     def describe(self):
-        tw = textwrap.TextWrapper(width=70, replace_whitespace=False, subsequent_indent="          ")
         # time.sleep(1)
         print()
         print("-" * 70)
@@ -76,21 +78,26 @@ class Place(Backpack):
         print("")
 
     def describe2(self):
-        tw = textwrap.TextWrapper(width=70, replace_whitespace=False, subsequent_indent="          ")
+        """ unused and not working """
         # time.sleep(1)
-        location = f"You are in the {self.name}, {self.description}.  "
+        location = f"You are in the {self.name}.  {self.description}  "
 
         if len(self.inhabitants) == 0:
             inhabitants = "No one else is here.  "
         elif len(self.inhabitants) == 1:
-            inhabitants = f"{self.inhabitants[0].name}, {self.inhabitants[0].description} is here.  "
+            [inhabitant] = self.inhabitants
+            inhabitants = f"{inhabitant.name}, {inhabitant.description} is here.  "
         else:
-            inhabitants = f"{' and '.join(self.inhabitants)} are here.  "
+            inhabitants = list()
+            for inhabitant in self.inhabitants:
+                inhabitants.append(f"{inhabitant.name}, {inhabitant.description}")
+            inhabitants = ", and ".join(inhabitants) + " are here."
 
-        print(tw.fill(location + inhabitants))
         visible_items = self.list_visible_items()
-        print("\nItems: {}".format(", ".join(visible_items)))
+        # print("\nItems: {}".format(", ".join(visible_items)))
 
+        description = location + inhabitants
+        print(tw2.fill(description))
         print("\nPlaces you can go from here:")
         for number, place in enumerate(self.linked_places, 1):
             place_name, place_description = place[0].name, place[1]
