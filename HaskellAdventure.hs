@@ -3,14 +3,25 @@
 import Data.List (intercalate)
 
 data Status = Status {location :: Location,
-                      inventory :: [Item]}
+                      items :: [(Item, Location, [Property])]}
             deriving (Show)
 
 type Location = String
 type Item = String
 type Description = String
+type Property = String
 
-start = Status {location="kitchen", inventory=["matches", "torch", "spoon"]}
+start = Status {location="kitchen",
+                items=[("cheese", "kitchen", []), ("apple", "kitchen", []),
+                      ("book", "dining hall", []), ("knife", "ballroom", []),
+                      ("matches", "inventory", ["dry"]), ("torch", "inventory", ["not lit"]),
+                      ("spoon", "inventory", [])]}
+
+items :: [(Item, Description, [Property])]
+items = [("cheese", "a smelly piece of cheese", []), ("apple", "an apple", []),
+         ("book", "a book", []), ("knife", "a knife", []),
+         ("matches", "a book of matches", []), ("torch", "a torch", []),
+         ("spoon", "an old metal spoon", [])]
 
 main = game start
 
@@ -26,11 +37,6 @@ paths = [("kitchen", [("dining hall", "south")]),
         ("ballroom", [("dining hall", "east"), ("balcony", "up the stairs")]),
         ("balcony", [("ballroom", "down the stairs")])]
 
-items :: [(Item, Description, Location)]
-items = [("cheese", "a smelly piece of cheese", "kitchen"), ("apple", "an apple", "kitchen"),
-         ("book", "a book", "dining hall"), ("knife", "a knife", "ballroom"),
-         ("matches", "a book of matches", "backpack"), ("torch", "a torch", "backpack"),
-         ("spoon", "an old metal spoon", "backpack")]
 
 -- the game loop
 game status = do putStrLn $ describe status
@@ -53,7 +59,7 @@ describeItems status = listItems itemList
         itemList = [description | (name, description, place)<- items, place == placeName]
 
 describeInventory status = "You have " ++ itemList
-  where items = inventory status
+  where items = [name | (name, place, properties) <- (items status)]
         itemList = listItems items
 
 listItems items = case (length items) of
