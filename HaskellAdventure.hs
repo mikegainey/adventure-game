@@ -1,39 +1,102 @@
--- text adventure game
+-- a text adventure game
 
 import Data.List (intercalate)
 
-data Status = Status {location :: String,
-                      inventory :: [String]}
+data Status = Status {location :: Location,
+                      inventory :: [Item]}
             deriving (Show)
+
+type Location = String
+type Item = String
+type Description = String
+
+start = Status {location="kitchen", inventory=["matches", "torch", "spoon"]}
 
 main = game start
 
-start = Status {location="the old gas station", inventory=["a book of matches", "an old metal spoon"]}
+locations :: [(Location, Description)]
+locations = [("kitchen", "The kitchen. A dank and dirty room buzzing with flies."),
+             ("dining hall", "The dining hall. A large room with ornate golden decorations on each wall."),
+             ("ballroom", "The ballroom. A vast room with a shiny wooden floor.\nHuge candlesticks guard the entrance. Stairs lead to a balcony overlooking the ballroom."),
+             ("balcony", "A balcony surrounding and overlooking the ballroom.\nStairs lead back down to the ballroom floor.")]
 
+paths :: [(Location, [(Location, String)])] -- [(Location, [(connected Location, how to get there)])]
+paths = [("kitchen", [("dining hall", "south")]),
+        ("dining hall", [("kitchen", "north"), ("ballroom", "west")]),
+        ("ballroom", [("dining hall", "east"), ("balcony", "up the stairs")]),
+        ("balcony", [("ballroom", "down the stairs")])]
+
+items :: [(Item, Description, Location)]
+items = [("cheese", "a smelly piece of cheese", "kitchen"), ("apple", "an apple", "kitchen"),
+         ("book", "a book", "dining hall"), ("knife", "a knife", "ballroom"),
+         ("matches", "a book of matches", "backpack"), ("torch", "a torch", "backpack"),
+         ("spoon", "an old metal spoon", "backpack")]
+
+-- the game loop
 game status = do putStrLn $ describe status
                  putStr "Now what? "
                  command <- getLine
-                 let newStatus = update status
+                 let newStatus = update status command
                  game newStatus
 
 describe :: Status -> String
-describe status = "\nLocation: " ++ (describeLocation status) ++
-                  "\nInventory: " ++ (describeInventory status)
+describe status = "\n\nLocation: " ++ (describeLocation status) ++
+                  "\nYou see: " ++ (describeItems status) ++
+                  "\n\nInventory: " ++ (describeInventory status) ++
+                  "\n\nPlaces you can go from here:\n" ++ (describePaths status)
 
-describeLocation status = concat ["You are at ", name, ". ", description]
+describeLocation status = head $ find name locations
   where name = location status
-        description = head $ find name locations
 
-describeInventory status = "You have " ++ intercalate ", " (inventory status)
+describeItems status = listItems itemList
+  where placeName = location status
+        itemList = [description | (name, description, place)<- items, place == placeName]
 
-update s = s
+describeInventory status = "You have " ++ itemList
+  where items = inventory status
+        itemList = listItems items
 
--- returns [] if key not found
+listItems items = case (length items) of
+  0 -> ""
+  1 -> (head items) ++ "."
+  2 -> (head items) ++ " and " ++ (last items) ++ "."
+  _ -> (intercalate ", " (init items)) ++ ", and " ++ (last items)  ++ "."
+
+describePaths status = unlines $ map format (getPaths status)
+  where format (i, newloc, path) = concat [i, ". ", newloc, ": ", path]
+
+getPaths status = [(show i, newLocation, path) | (i, (newLocation, path)) <- zip [1..] pathlist]
+  where currentLocation = location status
+        pathlist = head $ find currentLocation paths
+
+update :: Status -> String -> Status
+update status command
+  | command `elem` (map show [1..9]) = move status command
+  | verb == "take"                   = takeItem status command
+  | otherwise = status
+  where verb = head $ words command
+        object = last $ words command
+
+move :: Status -> String -> Status
+move status command = if newLocation == []
+                      then status
+                      else status {location = (head newLocation)}
+  where pathlist = getPaths status
+        newLocation = [location | (i, location, path)<- pathlist, i == command]
+
+takeItem :: Status -> String -> Status
+takeItem status command = status
+  where object = last $ words command
+        isPresent = (not . null) [name | (name, description, place)<- items, name == object]
+
+-- find key in table, return value or [] if key not found
 find key table = [v | (k,v) <- table, k == key]
 
--- [(name, description)]
-locations = [("the old gas station", "The attendant looks like he doesn't want your business."),
-            ("the post office", "No one remembers what a post office does anymore.")]
+{-| to take items:
 
--- [(location, [connected locations])]
-paths = []
+redo items:
+- status should keep track of all items [("name", "location")]. location = "backpack" for carried items
+- items = [("name", "description")]
+
+-}
+
