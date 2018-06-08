@@ -1,16 +1,28 @@
--- a text adventure game in Haskell
+-- A text adventure game in Haskell (just to see if I can do it).
 
 import Data.List (intercalate)
 
+main = game start
+
+--------------------------------------------------------------------------------
+-- data definitions and aliases
+--------------------------------------------------------------------------------
+
 data World = World {_location :: Location,
                     _items    :: [(Item, Location, [Property])],
-                    _paths    :: [(Location, [(Location, String, [Property])])]}
+                    _paths    :: [(Location, [(Location, String, [Property])])]
+                   }
   deriving (Show)
 
+-- just to make type signatures more descriptive
 type Location    = String
 type Item        = String
 type Description = String
 type Property    = String
+
+--------------------------------------------------------------------------------
+-- things in the world that can change
+--------------------------------------------------------------------------------
 
 start = World {_location = "kitchen",
                -- items :: [(Item, Location, [Property])]
@@ -24,13 +36,18 @@ start = World {_location = "kitchen",
                         ("ballroom", [("dining hall", "east", []), ("balcony", "up the stairs", ["blocked"])]),
                         ("balcony", [("ballroom", "down the stairs", [])])] }
 
-items :: [(Item, Description, [Property])]
-items = [("cheese", "a smelly piece of cheese", []), ("apple", "an apple", []),
-                    ("book", "a book", []), ("knife", "a knife", []),
-                    ("matches", "a book of matches", []), ("torch", "a torch", []),
-                    ("spoon", "an old metal spoon", [])]
+--------------------------------------------------------------------------------
+-- things in the world that don't change
+--------------------------------------------------------------------------------
 
-main = game start
+items :: [(Item, Description, [Property])]
+items = [("cheese", "a smelly piece of cheese", []),
+          ("apple", "an apple", []),
+          ("book", "a book", []),
+          ("knife", "a knife", []),
+          ("matches", "a book of matches", []),
+          ("torch", "a torch", ["not lit"]),
+          ("spoon", "an old metal spoon", [])]
 
 locations :: [(Location, Description)]
 locations = [("kitchen", "The kitchen. A dank and dirty room buzzing with flies."),
@@ -38,7 +55,10 @@ locations = [("kitchen", "The kitchen. A dank and dirty room buzzing with flies.
              ("ballroom", "The ballroom. A vast room with a shiny wooden floor.\nHuge candlesticks guard the entrance. Stairs lead to a balcony overlooking the ballroom."),
              ("balcony", "A balcony surrounding and overlooking the ballroom.\nStairs lead back down to the ballroom floor.")]
 
--- the game loop
+--------------------------------------------------------------------------------
+-- the game loop: display status; get player's command; update world; repeat
+--------------------------------------------------------------------------------
+
 game world = do putStrLn $ describe world
                 putStr "Now what? "
                 command <- getLine
@@ -51,46 +71,77 @@ describe world = "\n\nLocation: " ++ (describeLocation world) ++
                  "\n\nInventory: " ++ (describeInventory world) ++
                  "\n\nPlaces you can go from here:\n" ++ (describePaths world)
 
-describeLocation world = head $ find name locations
-  where name = _location world
+--------------------------------------------------------------------------------
+-- describing the player's current location
+--------------------------------------------------------------------------------
 
+describeLocation :: World -> Description
+describeLocation world = case (lookup currentLocation locations) of
+                           (Just description) -> description
+                           nothing            -> currentLocation
+  where currentLocation = _location world
+
+--------------------------------------------------------------------------------
+-- describing items in the current location and the player's inventory
+--------------------------------------------------------------------------------
+
+describeItems :: World -> String
 describeItems world = listItems itemDescriptions
   where currentLocation = _location world
         itemNames = itemsIn world currentLocation
-        itemDescriptions = items2descriptions itemNames
+        itemDescriptions = map item2description itemNames
 
+describeInventory :: World -> String
 describeInventory world = "You have " ++ (listItems itemDescriptions)
   where itemNames = itemsIn world "inventory"
-        itemDescriptions = items2descriptions itemNames
+        itemDescriptions = map item2description itemNames
 
-itemsIn world place = [itemName | (itemName, itemPlace, _) <- (_items world),
-                        itemPlace == place]
+itemsIn :: World -> Location -> [Item]
+itemsIn world place = [iName | (iName, iPlace, _) <- (_items world), iPlace == place]
 
-items2descriptions itemNames = [description | itemName <- itemNames,
-                                (name, description, _) <- items,
-                                name == itemName]
+item2description itemName = i2d itemName items
+  where i2d target [] = itemName
+        i2d target ((n,d,p):xs) | n == target = d
+                                | otherwise   = i2d target xs
 
+listItems :: [Item] -> String
 listItems items = case (length items) of
   0 -> ""
   1 -> (head items) ++ "."
   2 -> (head items) ++ " and " ++ (last items) ++ "."
   _ -> (intercalate ", " (init items)) ++ ", and " ++ (last items)  ++ "."
 
+--------------------------------------------------------------------------------
+-- describing paths the player can take from the current location
+--------------------------------------------------------------------------------
+
+describePaths :: World -> String
 describePaths world = unlines $ map format (getPaths world)
   where format (i, newloc, path) = concat [i, ". ", newloc, ": ", path]
 
+getPaths :: World -> [(String, Location, String)]
 getPaths world = [(show i, newLocation, path) | (i, (newLocation, path, _)) <- zip [1..] pathlist]
   where currentLocation = _location world
-        pathlist = head $ find currentLocation (_paths world)
+        pathlist = case (lookup currentLocation (_paths world)) of
+          (Just pathlist) -> pathlist
+          nothing         -> [("kitchen", "RESET LOCATION", [])]
+
+--------------------------------------------------------------------------------
+-- call functions to perform player commands
+--------------------------------------------------------------------------------
 
 update :: World -> String -> World
 update world command
   | command `elem` (map show [1..9]) = move world command
-  | verb == "take"  = takeItem world command
-  | verb == "leave" = leaveItem world command
-  | otherwise       = world
+  | verb `elem` ["take", "get"]   = takeItem world command
+  | verb `elem` ["leave", "drop"] = leaveItem world command
+  | otherwise = world
   where verb   = head $ words command
         object = last $ words command
+
+--------------------------------------------------------------------------------
+-- functions to implement player commands
+--------------------------------------------------------------------------------
 
 move :: World -> String -> World
 move world command = if newLocation == []
@@ -122,14 +173,3 @@ leaveItem world command
         update (it,loc,prop) = if it == object
                                then (it, location, prop)
                                else (it, loc, prop)
-
--- find key in table, return value or [] if key not found
-find key table = [v | (k,v) <- table, k == key]
-
-{-| to take items:
-
-- verify the item is in the current location
-- if so, change item location to inventory
-
--}
-
