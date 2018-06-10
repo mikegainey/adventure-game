@@ -26,10 +26,13 @@ type Property    = String
 
 start = World {_location = "kitchen",
                -- items :: [(Item, Location, [Property])]
-               _items = [("cheese", "kitchen", []), ("apple", "kitchen", []),
-                        ("book", "dining hall", []), ("knife", "ballroom", []),
-                        ("matches", "inventory", ["wet"]), ("torch", "inventory", ["not lit"]),
-                        ("spoon", "inventory", [])],
+               _items = [("cheese", "kitchen", []),
+                         ("apple", "kitchen", []),
+                         ("book", "dining hall", []),
+                         ("knife", "ballroom", []),
+                         ("matches", "inventory", ["wet"]),
+                         ("torch", "inventory", ["not lit"]),
+                         ("spoon", "inventory", ["metal", "bent"])],
                -- paths :: [(Location, [(connected Location, how to get there, [Property])])]
                _paths = [("kitchen", [("dining hall", "south", [])]),
                         ("dining hall", [("kitchen", "north", []), ("ballroom", "west", [])]),
@@ -71,15 +74,28 @@ describe world = "\n\nLocation: " ++ (describeLocation world) ++
                  "\n\nInventory: " ++ (describeInventory world) ++
                  "\n\nPlaces you can go from here:\n" ++ (describePaths world)
 
+update :: World -> String -> World
+update world command
+  | command `elem` (map show [1..9]) = move world command
+  | verb `elem` ["take", "get"]   = takeItem world command
+  | verb `elem` ["leave", "drop"] = leaveItem world command
+  | verb == "light" && object == "torch" = lightTorch world
+  | otherwise = world
+  where verb   = head $ words command
+        object = last $ words command
+
 --------------------------------------------------------------------------------
 -- describing the player's current location
 --------------------------------------------------------------------------------
 
 describeLocation :: World -> Description
 describeLocation world = case (lookup currentLocation locations) of
-                           (Just description) -> description
-                           nothing            -> currentLocation
+                           (Just description) -> description ++ itemEffects
+                           nothing            -> currentLocation ++ itemEffects
   where currentLocation = _location world
+
+-- properties of items can change the description of the location
+itemEffects = ""
 
 --------------------------------------------------------------------------------
 -- describing items in the current location and the player's inventory
@@ -127,19 +143,6 @@ getPaths world = [(show i, newLocation, path) | (i, (newLocation, path, _)) <- z
           nothing         -> [("kitchen", "RESET LOCATION", [])]
 
 --------------------------------------------------------------------------------
--- call functions to perform player commands
---------------------------------------------------------------------------------
-
-update :: World -> String -> World
-update world command
-  | command `elem` (map show [1..9]) = move world command
-  | verb `elem` ["take", "get"]   = takeItem world command
-  | verb `elem` ["leave", "drop"] = leaveItem world command
-  | otherwise = world
-  where verb   = head $ words command
-        object = last $ words command
-
---------------------------------------------------------------------------------
 -- functions to implement player commands
 --------------------------------------------------------------------------------
 
@@ -148,28 +151,58 @@ move world command = if newLocation == []
                       then world
                       else world {_location = (head newLocation)}
   where pathlist = getPaths world
-        newLocation = [location | (i, location, path)<- pathlist, i == command]
+        newLocation = [location | (i, location, path) <- pathlist, i == command]
 
 takeItem :: World -> String -> World
 takeItem world command
-  | isPresent = world {_items = new_items}
+  | isPresent = moveItem world object "inventory"
   | otherwise = world
   where object = last $ words command
         location = _location world
         isPresent = object `elem` (itemsIn world location)
-        new_items = map update (_items world)
-        update (it,loc,prop) = if it == object
-                               then (it,"inventory",prop)
-                               else (it,loc,prop)
 
 leaveItem :: World -> String -> World
 leaveItem world command
-  | inInventory = world {_items = update_items}
+  | inInventory = moveItem world object location
   | otherwise = world
   where object = last $ words command
         location = _location world
         inInventory = object `elem` (itemsIn world "inventory")
-        update_items = map update (_items world)
-        update (it,loc,prop) = if it == object
-                               then (it, location, prop)
+
+moveItem :: World -> Item -> Location -> World
+moveItem world item newLocation = world {_items = new_items}
+  where new_items = map update (_items world)
+        update (it,loc,prop) = if it == item
+                               then (it, newLocation, prop)
                                else (it, loc, prop)
+
+-- not finished
+lightTorch world = world
+--   where inInventory = object `elem` (itemsIn world "inventory")
+
+-- verify that you have it
+-- check to see if it's already lit
+-- update properties: add "lit"; remove "not lit"
+
+itemProperty :: World -> Item -> Property -> Bool
+itemProperty world item property = property `elem` (getItemProperties world item)
+
+getItemProperties :: World -> Item -> [Property]
+getItemProperties world item = head [prop | (it, loc, prop)<- (_items world), it == item]
+
+-- not finished
+addItemProperty world item property = newProperties
+  where oldProperties = getItemProperties world item
+        newProperties = property : oldProperties
+
+{-| TODO:
+
+Unlock doors with keys
+- description: "There is a locked door on the east wall."
+- or "There is a painting hung on the east wall" (remove painting reveals a secret passage)
+- after the door is unlocked, the description changes or disappears "there is a secret passage in the wall"
+- after the door is unlocked, _paths is updated
+
+location property: lights on, lights off
+
+-}
