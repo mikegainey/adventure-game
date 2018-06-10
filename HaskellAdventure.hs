@@ -176,24 +176,40 @@ moveItem world item newLocation = world {_items = new_items}
                                then (it, newLocation, prop)
                                else (it, loc, prop)
 
--- not finished
-lightTorch world = world
---   where inInventory = object `elem` (itemsIn world "inventory")
+lightTorch world
+  | "lit" `elem` oldProperties = world
+  | not inInventory = world
+  | otherwise = world {_items = new_items}
+  where (location, oldProperties) = getItemProperties world "torch"
+        inInventory = location == "inventory"
+        notnotlit = filter (/="not lit") oldProperties
+        newProperties = "lit" : notnotlit
+        new_items = map update (_items world)
+        update (it,loc,prop) = if it == "torch"
+                               then (it, loc, newProperties)
+                               else (it, loc, prop)
 
--- verify that you have it
--- check to see if it's already lit
--- update properties: add "lit"; remove "not lit"
+getItemProperties :: World -> Item -> (Location, [Property])
+getItemProperties world item = head [(loc, prop) | (it, loc, prop) <- (_items world), it == item]
 
-itemProperty :: World -> Item -> Property -> Bool
-itemProperty world item property = property `elem` (getItemProperties world item)
+-- addItemProperty :: World -> Item -> Property -> World
+-- addItemProperty world item property = world {_items = new_items}
+--   where (location, oldProperties) = getItemProperties world item
+--         newProperties = property : oldProperties
+--         new_items = map update (_items world)
+--         update (it,loc,prop) = if it == item
+--                                then (it, loc, newProperties)
+--                                else (it, loc, prop)
 
-getItemProperties :: World -> Item -> [Property]
-getItemProperties world item = head [prop | (it, loc, prop)<- (_items world), it == item]
+-- removeItemProperty :: World -> Item -> Property -> World
+-- removeItemProperty world item property = world {_items = new_items}
+--   where (location, oldProperties) = getItemProperties world item
+--         newProperties = filter (/=property) oldProperties
+--         new_items = map update (_items world)
+--         update (it,loc,prop) = if it == item
+--                                then (it, loc, newProperties)
+--                                else (it, loc, prop)
 
--- not finished
-addItemProperty world item property = newProperties
-  where oldProperties = getItemProperties world item
-        newProperties = property : oldProperties
 
 {-| TODO:
 
@@ -204,5 +220,4 @@ Unlock doors with keys
 - after the door is unlocked, _paths is updated
 
 location property: lights on, lights off
-
 -}
